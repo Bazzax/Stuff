@@ -19,6 +19,7 @@ import os
 import re
 import shutil
 import sys
+import traceback
 import webbrowser
 from datetime import datetime, timezone
 
@@ -29,6 +30,12 @@ except ImportError:
 
 DPI = 300
 JPEG_QUALITY = 95
+
+# Prefer Resampling enum (Pillow >=9); fall back for older
+try:
+    RESAMPLE = Image.Resampling.LANCZOS
+except AttributeError:
+    RESAMPLE = Image.LANCZOS
 
 SIZES = {
     "portrait":  {"4x6": (4, 6), "5x7": (5, 7), "8x10": (8, 10), "11x14": (11, 14)},
@@ -55,7 +62,7 @@ def center_crop_resize(img: "Image.Image", w_px: int, h_px: int) -> "Image.Image
         new_h = round(src_w / target_ratio)
         top = (src_h - new_h) // 2
         box = (0, top, src_w, top + new_h)
-    return img.crop(box).resize((w_px, h_px), Image.LANCZOS)
+    return img.crop(box).resize((w_px, h_px), RESAMPLE)
 
 
 def now_stamp(explicit=None) -> str:
@@ -70,7 +77,7 @@ def pillow_upscale(src: str, dst: str, factor: int = 4) -> None:
     print("  externally and then use --upscale-method none.")
     with Image.open(src) as img:
         w, h = img.size
-        up = img.resize((w * factor, h * factor), Image.LANCZOS)
+        up = img.resize((w * factor, h * factor), RESAMPLE)
         up.save(dst)
         print(f"  upscaled {w}x{h} -> {up.size[0]}x{up.size[1]}")
 
@@ -116,6 +123,8 @@ def cmd_finalize(args) -> int:
 
     size_set = SIZES[orientation]
     if want != "all":
+        if isinstance(want, str):
+            want = [want]
         missing = [s for s in want if s not in size_set]
         if missing:
             sys.exit(f"ERROR: sizes {missing} not valid for {orientation}. Valid: {list(size_set)}")
@@ -126,8 +135,8 @@ def cmd_finalize(args) -> int:
     os.makedirs(prints_dir, exist_ok=True)
 
     master = os.path.join(piece_dir, "master.png")
-    method = args.upscale_method
-    if method == "none" or args.skip_upscale:
+    method = getattr(args, "upscale_method", "pillow")
+    if method == "none" or getattr(args, "skip_upscale", False):
         print("  copying source as master (no upscale)")
         shutil.copyfile(source, master)
         actual_upscale = 0
@@ -157,7 +166,7 @@ def cmd_finalize(args) -> int:
         "upscale": actual_upscale,
         "prompt": piece.get("prompt", ""),
         "seo": piece.get("seo", {}),
-        "finalized_at": now_stamp(args.stamp),
+        "finalized_at": now_stamp(getattr(args, "stamp", None)),
         "upscale_method": method,
     }
     with open(os.path.join(piece_dir, "meta.json"), "w") as f:
@@ -170,6 +179,8 @@ def cmd_finalize(args) -> int:
 
 def cmd_index(args) -> int:
     run_dir = args.run_dir
+    if not os.path.isdir(run_dir):
+        sys.exit(f"ERROR: run_dir not found: {run_dir}")
     pieces = []
     for name in sorted(os.listdir(run_dir)):
         mpath = os.path.join(run_dir, name, "meta.json")
@@ -197,7 +208,7 @@ def cmd_index(args) -> int:
 
     run = {
         "run_dir": run_dir,
-        "generated_at": now_stamp(args.stamp),
+        "generated_at": now_stamp(getattr(args, "stamp", None)),
         "upscaler": "Pillow-LANCZOS (approx) or external",
         "piece_count": len(pieces),
         "pieces": [{"title": p["title"], "slug": p["slug"], "model": p.get("model"),
@@ -212,7 +223,7 @@ def cmd_index(args) -> int:
     return 0
 
 
-GRID_HTML = """<!doctype html><html><head><meta charset="utf-8">
+GRID_HTML = """<!doctype html><html><head><meta charset=\"utf-8\">
 <title>Artwork candidates — {run}</title>
 <style>
  body{{background:#1a1a1a;color:#eee;font-family:-apple-system,system-ui,sans-serif;margin:0;padding:24px}}
@@ -227,8 +238,8 @@ GRID_HTML = """<!doctype html><html><head><meta charset="utf-8">
  .fn{{color:#666;font-size:10px;word-break:break-all;margin-top:4px}}
 </style></head><body>
 <h1>Artwork candidates</h1>
-<div class="sub">{run} · {n} candidates · pick by code</div>
-<div class="grid">
+<div class=\"sub\">{run} · {n} candidates · pick by code</div>
+<div class=\"grid\">
 {cards}
 </div></body></html>"""
 
@@ -251,8 +262,11 @@ def cmd_grid(args) -> int:
     with open(out, "w") as fh:
         fh.write(GRID_HTML.format(run=run, n=len(pngs), cards=cards))
     print(f"grid: {out}  ({len(pngs)} candidates)")
-    if not args.no_open:
-        webbrowser.open("file://" + os.path.abspath(out))
+    if not getattr(args, "no_open", False):
+        try:
+            webbrowser.open("file://" + os.path.abspath(out))
+        except Exception:
+            print("  (could not open browser automatically)")
     return 0
 
 
@@ -283,4 +297,11 @@ def main() -> int:
 
 
 if __name__ == "__main__":
-    raise SystemExit(main())
+    try:
+        raise SystemExit(main())
+    except SystemExit:
+        raise
+    except Exception as e:
+        print(f"ERROR: {e}", file=sys.stderr)
+        traceback.print_exc()
+        raise SystemExit(1)
