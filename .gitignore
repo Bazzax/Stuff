@@ -1,0 +1,11 @@
+# Artwork Orchestrator run output — masters and 300-DPI print crops are large.
+tooling/digital-product-research/artwork-runs/
+artwork-runs/
+
+# Upscaler binary + models (installed per-machine, see the skill's preflight)
+tooling/upscale/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
