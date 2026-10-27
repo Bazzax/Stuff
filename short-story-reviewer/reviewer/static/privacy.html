@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Privacy · Short Story Reviewer</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<header class="masthead">
+  <div class="wrap">
+    <h1>Privacy</h1>
+    <p class="lede"><a href="/">Back to the reviewer</a></p>
+  </div>
+</header>
+<main class="wrap prose">
+  <h2>What happens to your story</h2>
+  <ul>
+    <li>Your story, and the file you upload, are sent to this server inside the request that runs the edit.</li>
+    <li>The server processes them in memory. It does not write them to disk, store them in a database or log their
+      text. Server logs record that a request happened, not what it contained.</li>
+    <li>When the run ends, or if you close the page, the story is discarded. The letter and the annotated
+      manuscript are sent back to your browser and are not kept on the server.</li>
+    <li>Nothing about your story is used to train anything by this app.</li>
+  </ul>
+
+  <h2>Anthropic</h2>
+  <p>To be edited, the story is sent to Anthropic's API, which runs the Claude models that do the reading.
+    Anthropic handles API data under its own commercial terms and privacy policy; check those for how long
+    it keeps API inputs and outputs.</p>
+
+  <h2>Your browser</h2>
+  <p>The page keeps your story in the browser tab while you work. Closing or reloading the tab clears it.</p>
+
+  <h2>Rate limits</h2>
+  <p>To keep costs down, the server counts requests per network address for an hour at a time. It keeps the
+    count, not the content.</p>
+
+  <h2>Markets</h2>
+  <p>Market facts (word limits and AI policies) are quoted from each market's own guidelines, with the date
+    they were checked. Guidelines change; check the market's page before you submit.</p>
+</main>
+</body>
+</html>

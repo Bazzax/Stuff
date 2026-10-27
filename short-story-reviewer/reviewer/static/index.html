@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Short Story Reviewer</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<header class="masthead">
+  <div class="wrap">
+    <h1>Short Story Reviewer</h1>
+    <p class="lede">A staged editorial read of one short story: an editorial letter, plus notes located in the
+      manuscript. It diagnoses. Unless you ask for suggestions, it never rewrites your prose.</p>
+  </div>
+</header>
+
+<main class="wrap">
+  <div id="server-status" class="banner" hidden></div>
+
+  <section class="step" aria-labelledby="h-story">
+    <h2 id="h-story"><span class="num">1</span> Story</h2>
+    <label class="field">
+      <span>Title <small>(optional)</small></span>
+      <input id="title" type="text" maxlength="200" autocomplete="off">
+    </label>
+    <div class="field">
+      <label for="file">Upload a file <small>(.docx, .txt or .md; a .docx comes back with margin comments)</small></label>
+      <div class="file-row">
+        <input id="file" type="file" accept=".docx,.txt,.md">
+        <button id="clear-file" type="button" class="link" hidden>Remove file</button>
+      </div>
+    </div>
+    <label class="field">
+      <span>Or paste it</span>
+      <textarea id="text" rows="10" spellcheck="false" placeholder="Paste the story here."></textarea>
+    </label>
+    <p id="measure" class="measure" aria-live="polite"></p>
+    <details id="counts-box" hidden>
+      <summary>What the counting module found</summary>
+      <ul id="counts"></ul>
+      <p class="hint">These are counts, not verdicts. The line pass judges each one.</p>
+    </details>
+  </section>
+
+  <section class="step" aria-labelledby="h-brief">
+    <h2 id="h-brief"><span class="num">2</span> Brief</h2>
+
+    <div class="grid">
+      <label class="field">
+        <span>Target market or competition <small>(optional)</small></span>
+        <select id="market"><option value="">None</option></select>
+      </label>
+      <label class="field" id="other-market-field" hidden>
+        <span>Market name</span>
+        <input id="market-name" type="text" maxlength="200">
+      </label>
+    </div>
+
+    <div id="notice" class="notice" hidden aria-live="polite"></div>
+
+    <fieldset class="field">
+      <legend>Draft stage</legend>
+      <label><input type="radio" name="draft_stage" value="early draft" checked> Early draft</label>
+      <label><input type="radio" name="draft_stage" value="ready to submit"> Ready to submit</label>
+      <label><input type="radio" name="draft_stage" value="accepted"> Accepted</label>
+    </fieldset>
+
+    <fieldset class="field">
+      <legend>Level of edit</legend>
+      <label><input type="radio" name="edit_level" value="developmental" checked> Developmental</label>
+      <label><input type="radio" name="edit_level" value="line"> Line</label>
+      <label><input type="radio" name="edit_level" value="copy"> Copy</label>
+    </fieldset>
+
+    <fieldset class="field">
+      <legend>Conventions</legend>
+      <label><input type="radio" name="conventions" value="UK" checked> UK</label>
+      <label><input type="radio" name="conventions" value="US"> US</label>
+    </fieldset>
+
+    <fieldset class="field" id="mode-field">
+      <legend>Mode</legend>
+      <label><input type="radio" name="mode" value="diagnosis" checked> Diagnosis only</label>
+      <label><input type="radio" name="mode" value="rewrites" id="mode-rewrites"> Diagnosis plus suggested rewrites</label>
+      <p class="hint" id="mode-hint">Suggested rewrites are labelled as suggestions, kept in the letter, and never put into the manuscript file.</p>
+    </fieldset>
+
+    <label class="field">
+      <span>Your questions for the editor <small>(optional)</small></span>
+      <textarea id="questions" rows="3" maxlength="3000" placeholder="For example: does the ending land? Is the middle too slow?"></textarea>
+    </label>
+  </section>
+
+  <section class="step" aria-labelledby="h-run">
+    <h2 id="h-run"><span class="num">3</span> Run</h2>
+    <p id="estimate" class="estimate" aria-live="polite">Add a story to see the estimated cost.</p>
+    <label class="field" id="code-field" hidden>
+      <span>Access code</span>
+      <input id="access-code" type="password" autocomplete="off">
+    </label>
+    <button id="run" type="button" class="primary" disabled>Run the edit</button>
+    <ol id="progress" class="progress" hidden></ol>
+    <p id="run-status" class="run-status" aria-live="polite"></p>
+  </section>
+
+  <section class="step" id="results" aria-labelledby="h-results" hidden>
+    <h2 id="h-results"><span class="num">4</span> Results</h2>
+    <div id="downloads" class="downloads"></div>
+    <div id="warnings" class="warnings" hidden></div>
+    <article id="letter" class="letter"></article>
+    <section id="notes-box" hidden>
+      <h3>Notes located in the manuscript</h3>
+      <ul id="notes" class="notes"></ul>
+    </section>
+    <details id="cost-box">
+      <summary>What this run cost</summary>
+      <table id="cost"></table>
+    </details>
+  </section>
+</main>
+
+<footer class="wrap footer">
+  <p><strong>Privacy.</strong> Your story is processed in memory. It is not stored, and its text is not
+    logged; it is discarded when the run ends. To be edited, it is sent to Anthropic's API.
+    <a href="/privacy">Read the privacy page</a>.</p>
+</footer>
+
+<script src="/static/app.js"></script>
+</body>
+</html>
