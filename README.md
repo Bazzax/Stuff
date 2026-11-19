@@ -35,3 +35,10 @@ python .claude/skills/artwork-orchestrator/scripts/artwork.py preflight
 Preflight exits non-zero and names anything missing. The skill deliberately
 refuses to skip the upscale step — native resolution alone will not reach
 300 DPI at the larger print sizes.
+
+## `short-story-reviewer/`
+
+A web app that runs a staged short-story editorial method through Claude and
+returns an editorial letter plus a .docx manuscript with margin comments. It
+has its own dependencies and instructions: see
+[`short-story-reviewer/README.md`](short-story-reviewer/README.md).

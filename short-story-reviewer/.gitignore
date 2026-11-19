@@ -1,0 +1,4 @@
+.env
+acceptance-output/
+test-docx/
+.pytest_cache/
